@@ -2,8 +2,8 @@ version: 2.1
 
 jobs:
   "Classic":
-    docker:
-      - image: "cimg/base:2023.06"
+    machine:
+      image: ubuntu-2204:2023.04.2
     steps:
       - checkout
       - run:
@@ -37,8 +37,8 @@ jobs:
             make -j 4
             cd ..
   "TBC":
-    docker:
-      - image: "cimg/base:2023.06"
+    machine:
+      image: ubuntu-2204:2023.04.2
     steps:
       - checkout
       - run:
@@ -73,8 +73,8 @@ jobs:
             cd ..
             
   "WotLK":
-    docker:
-      - image: "cimg/base:2023.06"
+    machine:
+      image: ubuntu-2204:2023.04.2
     steps:
       - checkout
       - run:
@@ -109,8 +109,8 @@ jobs:
             cd ..
             
   "Cata":
-    docker:
-      - image: "cimg/base:2023.06"
+    machine:
+      image: ubuntu-2204:2023.04.2
     steps:
       - checkout
       - run:
@@ -145,8 +145,8 @@ jobs:
             cd ..
             
   "Mop":
-    docker:
-      - image: "cimg/base:2023.06"
+    machine:
+      image: ubuntu-2204:2023.04.2
     steps:
       - checkout
       - run:
