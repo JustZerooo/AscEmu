@@ -21,7 +21,7 @@
 #include "WorldSession.h"
 
 #include "DatabaseDefinition.hpp"
-#include "FastQueue.h"
+#include "ThreadSafeQueue.hpp"
 #include "Threading/Mutex.h"
 #include "WorldPacket.h"
 #include "Objects/Item.hpp"
@@ -104,11 +104,6 @@ WorldSession::~WorldSession()
 
     delete[]permissions;
 
-    WorldPacket* packet;
-
-    while ((packet = _recvQueue.Pop()) != nullptr)
-        delete packet;
-
     for (uint32 x = 0; x < 8; x++)
     {
         delete[]sAccountData[x].data;
@@ -127,8 +122,6 @@ uint8 WorldSession::Update(uint32 InstanceID)
 
     if (!((++_updatecount) % 2) && _socket)
         _socket->UpdateQueuedPackets();
-
-    WorldPacket* packet;
 
     if (InstanceID != instanceId)
     {
@@ -161,7 +154,9 @@ uint8 WorldSession::Update(uint32 InstanceID)
 
     }
 
-    while ((packet = _recvQueue.Pop()) != nullptr)
+    std::shared_ptr<WorldPacket> packet;
+
+    while ((packet = _recvQueue.pop()) != nullptr)
     {
         if (packet != nullptr)
         {
@@ -191,8 +186,6 @@ uint8 WorldSession::Update(uint32 InstanceID)
                     }
                 }
             }
-
-            delete packet;
 
             if (InstanceID != instanceId)
             {
@@ -742,10 +735,10 @@ void WorldSession::OutPacket(uint16 opcode, uint16 len, const void* data)
     }
 }
 
-void WorldSession::QueuePacket(WorldPacket* packet)
+void WorldSession::QueuePacket(std::shared_ptr<WorldPacket> packet)
 {
     m_lastPing = static_cast<uint32>(UNIXTIME);
-    _recvQueue.Push(packet);
+    _recvQueue.push(packet);
 }
 
 void WorldSession::Disconnect()
