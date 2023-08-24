@@ -104,6 +104,12 @@ WorldSession::~WorldSession()
 
     delete[]permissions;
 
+    std::shared_ptr<WorldPacket> packet;
+
+    while ((packet = _recvQueue.pop()) != nullptr)
+    {
+    }
+
     for (uint32 x = 0; x < 8; x++)
     {
         delete[]sAccountData[x].data;
@@ -186,6 +192,8 @@ uint8 WorldSession::Update(uint32 InstanceID)
                     }
                 }
             }
+
+            packet = nullptr;
 
             if (InstanceID != instanceId)
             {

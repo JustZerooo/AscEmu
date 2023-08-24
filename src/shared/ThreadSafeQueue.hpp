@@ -22,10 +22,31 @@ public:
         std::unique_lock lock(m_lock);
 
         m_queue.push(_element);
+    }
+
+    void pushWait(T _element)
+    {
+        std::unique_lock lock(m_lock);
+
+        m_queue.push(_element);
         m_condition.notify_one();
     }
 
     T pop()
+    {
+        std::unique_lock lock(m_lock);
+
+        if (!m_queue.empty())
+        {
+            T element = m_queue.front();
+            m_queue.pop();
+            return element;
+        }
+
+        return nullptr;
+    }
+
+    T popWait()
     {
         std::unique_lock lock(m_lock);
 
@@ -35,6 +56,11 @@ public:
         m_queue.pop();
 
         return element;
+    }
+
+    bool hasItems()
+    {
+        return !m_queue.empty();
     }
 
 private:

@@ -152,6 +152,13 @@ WorldSocket::WorldSocket(SOCKET fd)
 
 WorldSocket::~WorldSocket()
 {
+    std::shared_ptr<WorldPacket> pck;
+    while ((pck = _queue.pop()) != nullptr)
+    {
+    }
+
+    pAuthenticationPacket = nullptr;
+
     if (mSession)
     {
         mSession->SetSocket(nullptr);
@@ -167,6 +174,14 @@ WorldSocket::~WorldSocket()
 
 void WorldSocket::OnDisconnect()
 {
+    if (!_queue.hasItems())
+        return;
+
+    std::shared_ptr<WorldPacket> pck;
+    while ((pck = _queue.pop()) != nullptr)
+    {
+    }
+
     if (mSession)
     {
         mSession->SetSocket(nullptr);
@@ -215,6 +230,9 @@ void WorldSocket::OutPacket(uint32_t opcode, size_t len, const void* data)
 
 void WorldSocket::UpdateQueuedPackets()
 {
+    if (!_queue.hasItems())
+        return;
+
     std::shared_ptr<WorldPacket> pck;
     while ((pck = _queue.pop()) != nullptr)
     {
@@ -231,6 +249,9 @@ void WorldSocket::UpdateQueuedPackets()
             // kill everything in the buffer
             default:
             {
+                while ((pck == _queue.pop()) != 0)
+                {
+                }
                 return;
             }
         }
@@ -970,6 +991,8 @@ void WorldSocket::OnRead()
             {
                 if (mSession)
                     mSession->QueuePacket(packet);
+                else
+                    packet = nullptr;
             } break;
         }
     }
